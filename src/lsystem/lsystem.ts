@@ -116,26 +116,30 @@ class Lsystem extends Drawable{
       var randomVlaue = Math.random() * (0.8 - 0.5) + 0.5;
       randomVlaue *= 0.6;
 
+      var randomTimeSeed = Math.random();
+
+     
+
       for(let i  = 0; i < thisMesh.positions.length / 3; i++)
       { 
         let newPos : vec4;
         newPos = vec4.create();
-       
+     
         if(classIndex == 0)
         {
           newPos = this.mulMat4Vec4(thisModelMat, vec4.fromValues(thisMesh.positions[i*3] * this.BranchSize, thisMesh.positions[i*3 + 1], thisMesh.positions[i*3 + 2] * this.BranchSize, 1.0));
-        
-          this.colsArray.push( 1.0 ); //x          
+          this.colsArray.push( 1.0 ); //x     
+              
         }
         else if(classIndex == 2)
         {
-          this.colsArray.push( 2.0 ); //x         
+          this.colsArray.push( 2.0 ); //x   
           newPos = this.mulMat4Vec4(thisModelMat, vec4.fromValues(thisMesh.positions[i*3] * this.LeafSize * randomVlaue, thisMesh.positions[i*3 + 1] * this.LeafSize * randomVlaue,
              thisMesh.positions[i*3 + 2] * this.LeafSize * randomVlaue, 1.0));
         }
         else if(classIndex == 1)
         {
-          this.colsArray.push( 3.0 ); //x         
+          this.colsArray.push( 3.0 ); //x     
           newPos = this.mulMat4Vec4(thisModelMat, vec4.fromValues(thisMesh.positions[i*3] * this.FlowerSize * randomVlaue, thisMesh.positions[i*3 + 1] * this.FlowerSize * randomVlaue,
              thisMesh.positions[i*3 + 2] * this.FlowerSize * randomVlaue, 1.0));
         }        
@@ -146,9 +150,13 @@ class Lsystem extends Drawable{
         this.positionsArray.push( newPos[3] );
 
         this.colsArray.push( 0.0 ); //y    
-        this.colsArray.push( 0.0 ); //z    
-        this.colsArray.push( 0.0 ); //w    
+        this.colsArray.push( 1.0 ); //z    
+        this.colsArray.push( 0.0 ); //w  
       }
+
+
+      
+      
 
       for(let i  = 0; i < thisMesh.normals.length / 3; i++)
       { 
@@ -181,6 +189,53 @@ class Lsystem extends Drawable{
         }
         this.indicesArray.push( thisIndex + startIndex );
       }
+
+      /*
+      for(let i  = 0; i < thisMesh.indices.length / 3; i++)
+      {      
+        var v0Index =  thisMesh.indices[i*3];
+        var v1Index =  thisMesh.indices[i*3 + 1];
+        var v2Index =  thisMesh.indices[i*3 + 2];
+
+        var v0 = vec3.create();
+        var v1 = vec3.create();
+        var v2 = vec3.create();
+
+        v0 = vec3.fromValues( thisMesh.positions[v0Index * 3], thisMesh.positions[v0Index * 3 + 1], thisMesh.positions[v0Index * 3 + 2] );
+        v1 = vec3.fromValues( thisMesh.positions[v1Index * 3], thisMesh.positions[v1Index * 3 + 1], thisMesh.positions[v1Index * 3 + 2] );
+        v2 = vec3.fromValues( thisMesh.positions[v2Index * 3], thisMesh.positions[v2Index * 3 + 1], thisMesh.positions[v2Index * 3 + 2] );
+
+        var v10 = vec3.create();
+        var v20 = vec3.create();
+        vec3.normalize( v10, vec3.fromValues(v1[0] - v0[0], v1[1] - v0[1], v1[2] - v0[2]) );
+        vec3.normalize( v20, vec3.fromValues(v2[0] - v0[0], v2[1] - v0[1], v2[2] - v0[2]) );
+
+        var faceNormal = vec3.create();
+
+        vec3.cross( faceNormal, v20, v10 );
+
+        //store face normal
+        for(let i  = 0; i < thisMesh.indices.length / 3; i++ )
+        {
+          if(classIndex == 0)
+          {
+            this.colsArray.push( 1.0 ); //x     
+          }
+          else if(classIndex == 1)
+          {
+            this.colsArray.push( 3.0 ); //x   
+          }
+          else if(classIndex == 2)
+          {
+            this.colsArray.push( 2.0 ); //x     
+          } 
+
+          this.colsArray.push( faceNormal[0] ); //y    
+          this.colsArray.push( faceNormal[1] ); //z    
+          this.colsArray.push( faceNormal[2] ); //w   
+        }
+      }
+      */
 
       startIndex += (max + 1);
     } 
@@ -407,6 +462,7 @@ class Lsystem extends Drawable{
       
       if(Math.random() > 0.1)
       {
+        //this.nextAxiom += '[1FY][4F11X]F[33F22X]F[2F33X]F[Y44X][3[Y4L[5L][6L]]]Y';
         this.nextAxiom += '[1FY][F11X]F[F22X]F[F33X]F[Y44X][3[Y4L[5L][6L]]]Y';
       }
       else

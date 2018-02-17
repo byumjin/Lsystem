@@ -22,7 +22,7 @@ import ShaderProgram, {Shader} from './rendering/gl/ShaderProgram';
 // This will be referred to by dat.GUI's functions that add GUI elements.
 const controls = {
   Axiom: "[1X][2X][3X][4X]",
-  Iteration: 4,
+  Iteration: 1,
   Angle: 22.5,
 
   FlowerColor: [242, 232, 12, 1.0], 

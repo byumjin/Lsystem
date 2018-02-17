@@ -17,6 +17,8 @@ uniform vec4 u_flowerColor;
 
 uniform sampler2D u_DiffuseMap;
 
+uniform mat4 u_ModelInvTr;
+
 // These are the interpolated values out of the rasterizer, so you can't know
 // their specific values without knowing the vertices that contributed to them
 in vec4 fs_Nor;
@@ -67,6 +69,7 @@ void main()
         // Compute final shaded color
         out_Col = vec4(diffuseColor.rgb * lightIntensity, diffuseColor.a);
 
-        //out_Col = vec4(fs_Uv, 0.0, diffuseColor.a);
+        //vec4 faceNormal = u_ModelInvTr * vec4(fs_Col.yzw, 0.0);
+        //out_Col = vec4(faceNormal.xyz, diffuseColor.a);
         
 }
