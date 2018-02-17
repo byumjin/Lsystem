@@ -1,4 +1,4 @@
-# CIS 566 Project 3: L-systems
+# CIS 566 Project 4: L-systems
 
 * Univer sity of Pennsylvania
 * pennkey : byumjin
