@@ -12,7 +12,7 @@ class Branch extends Drawable {
 
   create()
   {
-    console.log("suzanne created");
+    console.log("branch created");
     mat4.identity(this.modelMat);
 
     //var objMtlLoader = new ObjMtlLoader();
@@ -34,6 +34,40 @@ class Branch extends Drawable {
     var objStr = document.getElementById('branch.obj').innerHTML;
     var mesh = new WEBGLOBJLOADER.Mesh(objStr);
 
+    posArray = mesh.vertices;
+    norArray = mesh.vertexNormals;
+    indexArray = mesh.indices;
+    uvArray  = mesh.textures;
+
+    this.positions = new Float32Array(posArray);
+    this.normals = new Float32Array(norArray);
+    this.indices = new Uint32Array(indexArray);
+    this.uvs = new Float32Array(uvArray);
+  }
+
+  createdByLoader( stringParam : string )
+  {
+    console.log("branch created");
+    mat4.identity(this.modelMat);
+
+    //var objMtlLoader = new ObjMtlLoader();
+
+    var outResult;
+    let errMsg : string;
+
+    let posArray : Array<number>;
+    posArray = [];
+    let norArray : Array<number>;
+    norArray = [];
+    let indexArray : Array<number>;
+    indexArray = [];
+    let uvArray : Array<number>;
+    uvArray = [];
+
+
+    let bLoaded = false;
+    var mesh = new WEBGLOBJLOADER.Mesh(stringParam);
+    
     posArray = mesh.vertices;
     norArray = mesh.vertexNormals;
     indexArray = mesh.indices;

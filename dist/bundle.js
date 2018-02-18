@@ -3554,7 +3554,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 // This will be referred to by dat.GUI's functions that add GUI elements.
 const controls = {
     Axiom: "[1X][2X][3X][4X]",
-    Iteration: 4,
+    Iteration: 1,
     Angle: 22.5,
     FlowerColor: [242, 232, 12, 1.0],
     LeafColor: [18, 119, 23, 1.0],
@@ -3581,6 +3581,7 @@ let oldTime;
 let currentTime;
 let elapsedTime;
 let deltaTime;
+let MeshManager = [];
 function loadScene() {
     //lsys = new Lsystem(vec3.fromValues(0, 0, 0));
     lsys.create();
@@ -3604,14 +3605,14 @@ function rotatePlanet(planet, radius, speed) {
 }
 function loadObjs() {
     branch = new __WEBPACK_IMPORTED_MODULE_6__geometry_Branch__["a" /* default */](__WEBPACK_IMPORTED_MODULE_0_gl_matrix__["d" /* vec3 */].fromValues(0, 0, 0));
-    branch.create();
+    branch.createdByLoader(MeshManager[0]);
     leaf = new __WEBPACK_IMPORTED_MODULE_9__geometry_Leaf__["a" /* default */](__WEBPACK_IMPORTED_MODULE_0_gl_matrix__["d" /* vec3 */].fromValues(0, 0, 0));
-    leaf.create();
+    leaf.createdByLoader(MeshManager[1]);
     //leaf.bindTexture("src/textures/floor_norm.jpg");
     flower = new __WEBPACK_IMPORTED_MODULE_8__geometry_Flower__["a" /* default */](__WEBPACK_IMPORTED_MODULE_0_gl_matrix__["d" /* vec3 */].fromValues(0, 0, 0));
-    flower.create();
+    flower.createdByLoader(MeshManager[2]);
     suz = new __WEBPACK_IMPORTED_MODULE_7__geometry_Suzanne__["a" /* default */](__WEBPACK_IMPORTED_MODULE_0_gl_matrix__["d" /* vec3 */].fromValues(0, 0, 0));
-    suz.create();
+    suz.createdByLoader(MeshManager[3]);
     floor = new __WEBPACK_IMPORTED_MODULE_5__geometry_Square__["a" /* default */](__WEBPACK_IMPORTED_MODULE_0_gl_matrix__["d" /* vec3 */].fromValues(0, 0, 0));
     floor.create();
     cube = new __WEBPACK_IMPORTED_MODULE_4__geometry_Cube__["a" /* default */](__WEBPACK_IMPORTED_MODULE_0_gl_matrix__["d" /* vec3 */].fromValues(0, 0, 0));
@@ -3726,7 +3727,30 @@ function main() {
     // Start the render loop
     tick();
 }
-main();
+function readTextFile(file) {
+    console.log("Download" + file + "...");
+    var rawFile = new XMLHttpRequest();
+    let resultText;
+    rawFile.open("GET", file, false);
+    rawFile.onreadystatechange = function () {
+        if (rawFile.readyState === 4) {
+            if (rawFile.status === 200 || rawFile.status == 0) {
+                resultText = rawFile.responseText;
+            }
+        }
+    };
+    rawFile.send(null);
+    return resultText;
+}
+function DownloadMeshes() {
+    MeshManager.push(readTextFile("./src/models/branch.obj"));
+    MeshManager.push(readTextFile("./src/models/leaf.obj"));
+    MeshManager.push(readTextFile("./src/models/flower.obj"));
+    MeshManager.push(readTextFile("./src/models/suzanne.obj"));
+    console.log("Downloading is complete!");
+    main();
+}
+DownloadMeshes();
 
 
 /***/ }),
@@ -12277,19 +12301,20 @@ class Lsystem extends __WEBPACK_IMPORTED_MODULE_2__rendering_gl_Drawable__["a" /
             var classIndex = this.classStack[m];
             var randomVlaue = Math.random() * (0.8 - 0.5) + 0.5;
             randomVlaue *= 0.6;
+            var randomTimeSeed = Math.random();
             for (let i = 0; i < thisMesh.positions.length / 3; i++) {
                 let newPos;
                 newPos = __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["e" /* vec4 */].create();
                 if (classIndex == 0) {
                     newPos = this.mulMat4Vec4(thisModelMat, __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["e" /* vec4 */].fromValues(thisMesh.positions[i * 3] * this.BranchSize, thisMesh.positions[i * 3 + 1], thisMesh.positions[i * 3 + 2] * this.BranchSize, 1.0));
-                    this.colsArray.push(1.0); //x          
+                    this.colsArray.push(1.0); //x     
                 }
                 else if (classIndex == 2) {
-                    this.colsArray.push(2.0); //x         
+                    this.colsArray.push(2.0); //x   
                     newPos = this.mulMat4Vec4(thisModelMat, __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["e" /* vec4 */].fromValues(thisMesh.positions[i * 3] * this.LeafSize * randomVlaue, thisMesh.positions[i * 3 + 1] * this.LeafSize * randomVlaue, thisMesh.positions[i * 3 + 2] * this.LeafSize * randomVlaue, 1.0));
                 }
                 else if (classIndex == 1) {
-                    this.colsArray.push(3.0); //x         
+                    this.colsArray.push(3.0); //x     
                     newPos = this.mulMat4Vec4(thisModelMat, __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["e" /* vec4 */].fromValues(thisMesh.positions[i * 3] * this.FlowerSize * randomVlaue, thisMesh.positions[i * 3 + 1] * this.FlowerSize * randomVlaue, thisMesh.positions[i * 3 + 2] * this.FlowerSize * randomVlaue, 1.0));
                 }
                 this.positionsArray.push(newPos[0]);
@@ -12297,8 +12322,8 @@ class Lsystem extends __WEBPACK_IMPORTED_MODULE_2__rendering_gl_Drawable__["a" /
                 this.positionsArray.push(newPos[2]);
                 this.positionsArray.push(newPos[3]);
                 this.colsArray.push(0.0); //y    
-                this.colsArray.push(0.0); //z    
-                this.colsArray.push(0.0); //w    
+                this.colsArray.push(1.0); //z    
+                this.colsArray.push(0.0); //w  
             }
             for (let i = 0; i < thisMesh.normals.length / 3; i++) {
                 let newNor;
@@ -12323,6 +12348,52 @@ class Lsystem extends __WEBPACK_IMPORTED_MODULE_2__rendering_gl_Drawable__["a" /
                 }
                 this.indicesArray.push(thisIndex + startIndex);
             }
+            /*
+            for(let i  = 0; i < thisMesh.indices.length / 3; i++)
+            {
+              var v0Index =  thisMesh.indices[i*3];
+              var v1Index =  thisMesh.indices[i*3 + 1];
+              var v2Index =  thisMesh.indices[i*3 + 2];
+      
+              var v0 = vec3.create();
+              var v1 = vec3.create();
+              var v2 = vec3.create();
+      
+              v0 = vec3.fromValues( thisMesh.positions[v0Index * 3], thisMesh.positions[v0Index * 3 + 1], thisMesh.positions[v0Index * 3 + 2] );
+              v1 = vec3.fromValues( thisMesh.positions[v1Index * 3], thisMesh.positions[v1Index * 3 + 1], thisMesh.positions[v1Index * 3 + 2] );
+              v2 = vec3.fromValues( thisMesh.positions[v2Index * 3], thisMesh.positions[v2Index * 3 + 1], thisMesh.positions[v2Index * 3 + 2] );
+      
+              var v10 = vec3.create();
+              var v20 = vec3.create();
+              vec3.normalize( v10, vec3.fromValues(v1[0] - v0[0], v1[1] - v0[1], v1[2] - v0[2]) );
+              vec3.normalize( v20, vec3.fromValues(v2[0] - v0[0], v2[1] - v0[1], v2[2] - v0[2]) );
+      
+              var faceNormal = vec3.create();
+      
+              vec3.cross( faceNormal, v20, v10 );
+      
+              //store face normal
+              for(let i  = 0; i < thisMesh.indices.length / 3; i++ )
+              {
+                if(classIndex == 0)
+                {
+                  this.colsArray.push( 1.0 ); //x
+                }
+                else if(classIndex == 1)
+                {
+                  this.colsArray.push( 3.0 ); //x
+                }
+                else if(classIndex == 2)
+                {
+                  this.colsArray.push( 2.0 ); //x
+                }
+      
+                this.colsArray.push( faceNormal[0] ); //y
+                this.colsArray.push( faceNormal[1] ); //z
+                this.colsArray.push( faceNormal[2] ); //w
+              }
+            }
+            */
             startIndex += (max + 1);
         }
         this.indices = new Uint32Array(this.indicesArray);
@@ -12476,6 +12547,7 @@ class Lsystem extends __WEBPACK_IMPORTED_MODULE_2__rendering_gl_Drawable__["a" /
         }
         else if (character == 'X') {
             if (Math.random() > 0.1) {
+                //this.nextAxiom += '[1FY][4F11X]F[33F22X]F[2F33X]F[Y44X][3[Y4L[5L][6L]]]Y';
                 this.nextAxiom += '[1FY][F11X]F[F22X]F[F33X]F[Y44X][3[Y4L[5L][6L]]]Y';
             }
             else {
@@ -12651,7 +12723,7 @@ class Branch extends __WEBPACK_IMPORTED_MODULE_2__rendering_gl_Drawable__["a" /*
         this.center = __WEBPACK_IMPORTED_MODULE_1_gl_matrix__["e" /* vec4 */].fromValues(center[0], center[1], center[2], 1);
     }
     create() {
-        console.log("suzanne created");
+        console.log("branch created");
         __WEBPACK_IMPORTED_MODULE_1_gl_matrix__["b" /* mat4 */].identity(this.modelMat);
         //var objMtlLoader = new ObjMtlLoader();
         var outResult;
@@ -12667,6 +12739,31 @@ class Branch extends __WEBPACK_IMPORTED_MODULE_2__rendering_gl_Drawable__["a" /*
         let bLoaded = false;
         var objStr = document.getElementById('branch.obj').innerHTML;
         var mesh = new __WEBPACK_IMPORTED_MODULE_0_webgl_obj_loader__["Mesh"](objStr);
+        posArray = mesh.vertices;
+        norArray = mesh.vertexNormals;
+        indexArray = mesh.indices;
+        uvArray = mesh.textures;
+        this.positions = new Float32Array(posArray);
+        this.normals = new Float32Array(norArray);
+        this.indices = new Uint32Array(indexArray);
+        this.uvs = new Float32Array(uvArray);
+    }
+    createdByLoader(stringParam) {
+        console.log("branch created");
+        __WEBPACK_IMPORTED_MODULE_1_gl_matrix__["b" /* mat4 */].identity(this.modelMat);
+        //var objMtlLoader = new ObjMtlLoader();
+        var outResult;
+        let errMsg;
+        let posArray;
+        posArray = [];
+        let norArray;
+        norArray = [];
+        let indexArray;
+        indexArray = [];
+        let uvArray;
+        uvArray = [];
+        let bLoaded = false;
+        var mesh = new __WEBPACK_IMPORTED_MODULE_0_webgl_obj_loader__["Mesh"](stringParam);
         posArray = mesh.vertices;
         norArray = mesh.vertexNormals;
         indexArray = mesh.indices;
@@ -12721,6 +12818,31 @@ class Suzanne extends __WEBPACK_IMPORTED_MODULE_2__rendering_gl_Drawable__["a" /
         this.normals = new Float32Array(norArray);
         this.indices = new Uint32Array(indexArray);
     }
+    createdByLoader(stringParam) {
+        console.log("suzanne created");
+        __WEBPACK_IMPORTED_MODULE_1_gl_matrix__["b" /* mat4 */].identity(this.modelMat);
+        //var objMtlLoader = new ObjMtlLoader();
+        var outResult;
+        let errMsg;
+        let posArray;
+        posArray = [];
+        let norArray;
+        norArray = [];
+        let indexArray;
+        indexArray = [];
+        let uvArray;
+        uvArray = [];
+        let bLoaded = false;
+        var mesh = new __WEBPACK_IMPORTED_MODULE_0_webgl_obj_loader__["Mesh"](stringParam);
+        posArray = mesh.vertices;
+        norArray = mesh.vertexNormals;
+        indexArray = mesh.indices;
+        uvArray = mesh.textures;
+        this.positions = new Float32Array(posArray);
+        this.normals = new Float32Array(norArray);
+        this.indices = new Uint32Array(indexArray);
+        this.uvs = new Float32Array(uvArray);
+    }
 }
 ;
 /* harmony default export */ __webpack_exports__["a"] = (Suzanne);
@@ -12759,7 +12881,33 @@ class Flower extends __WEBPACK_IMPORTED_MODULE_2__rendering_gl_Drawable__["a" /*
         uvArray = [];
         let bLoaded = false;
         var objStr = document.getElementById('flower.obj').innerHTML;
+        console.log(objStr);
         var mesh = new __WEBPACK_IMPORTED_MODULE_0_webgl_obj_loader__["Mesh"](objStr);
+        posArray = mesh.vertices;
+        norArray = mesh.vertexNormals;
+        indexArray = mesh.indices;
+        uvArray = mesh.textures;
+        this.positions = new Float32Array(posArray);
+        this.normals = new Float32Array(norArray);
+        this.indices = new Uint32Array(indexArray);
+        this.uvs = new Float32Array(uvArray);
+    }
+    createdByLoader(stringParam) {
+        console.log("leaf created");
+        __WEBPACK_IMPORTED_MODULE_1_gl_matrix__["b" /* mat4 */].identity(this.modelMat);
+        //var objMtlLoader = new ObjMtlLoader();
+        var outResult;
+        let errMsg;
+        let posArray;
+        posArray = [];
+        let norArray;
+        norArray = [];
+        let indexArray;
+        indexArray = [];
+        let uvArray;
+        uvArray = [];
+        let bLoaded = false;
+        var mesh = new __WEBPACK_IMPORTED_MODULE_0_webgl_obj_loader__["Mesh"](stringParam);
         posArray = mesh.vertices;
         norArray = mesh.vertexNormals;
         indexArray = mesh.indices;
@@ -12808,6 +12956,31 @@ class Leaf extends __WEBPACK_IMPORTED_MODULE_2__rendering_gl_Drawable__["a" /* d
         let bLoaded = false;
         var objStr = document.getElementById('leaf.obj').innerHTML;
         var mesh = new __WEBPACK_IMPORTED_MODULE_0_webgl_obj_loader__["Mesh"](objStr);
+        posArray = mesh.vertices;
+        norArray = mesh.vertexNormals;
+        indexArray = mesh.indices;
+        uvArray = mesh.textures;
+        this.positions = new Float32Array(posArray);
+        this.normals = new Float32Array(norArray);
+        this.indices = new Uint32Array(indexArray);
+        this.uvs = new Float32Array(uvArray);
+    }
+    createdByLoader(stringParam) {
+        console.log("leaf created");
+        __WEBPACK_IMPORTED_MODULE_1_gl_matrix__["b" /* mat4 */].identity(this.modelMat);
+        //var objMtlLoader = new ObjMtlLoader();
+        var outResult;
+        let errMsg;
+        let posArray;
+        posArray = [];
+        let norArray;
+        norArray = [];
+        let indexArray;
+        indexArray = [];
+        let uvArray;
+        uvArray = [];
+        let bLoaded = false;
+        var mesh = new __WEBPACK_IMPORTED_MODULE_0_webgl_obj_loader__["Mesh"](stringParam);
         posArray = mesh.vertices;
         norArray = mesh.vertexNormals;
         indexArray = mesh.indices;
@@ -16082,7 +16255,7 @@ module.exports = "#version 300 es\r\n\r\n//This is a vertex shader. While it is 
 /* 73 */
 /***/ (function(module, exports) {
 
-module.exports = "#version 300 es\r\n\r\n// This is a fragment shader. If you've opened this file first, please\r\n// open and read lambert.vert.glsl before reading on.\r\n// Unlike the vertex shader, the fragment shader actually does compute\r\n// the shading of geometry. For every pixel in your program's output\r\n// screen, the fragment shader is run for every bit of geometry that\r\n// particular pixel overlaps. By implicitly interpolating the position\r\n// data passed into the fragment shader by the vertex shader, the fragment shader\r\n// can compute what color to apply to its pixel based on things like vertex\r\n// position, light position, and vertex color.\r\nprecision highp float;\r\n\r\nuniform vec4 u_branchColor;\r\nuniform vec4 u_leafColor;\r\nuniform vec4 u_flowerColor;\r\n\r\nuniform sampler2D u_DiffuseMap;\r\n\r\n// These are the interpolated values out of the rasterizer, so you can't know\r\n// their specific values without knowing the vertices that contributed to them\r\nin vec4 fs_Nor;\r\nin vec4 fs_LightVec;\r\nin vec4 fs_Col;\r\nin vec2 fs_Uv;\r\n\r\nout vec4 out_Col; // This is the final output color that you will see on your\r\n                  // screen for the pixel that is currently being processed.\r\n\r\n\r\n\r\nvoid main()\r\n{\r\n    // Material base color (before shading)\r\n        vec4 diffuseColor;\r\n        \r\n        //vec4 NormalMap = texture(u_DiffuseMap, fs_Uv);\r\n\r\n        //branch\r\n        if(fs_Col.x < 1.5)\r\n        {\r\n            diffuseColor = u_branchColor;\r\n        }\r\n        else if(fs_Col.x < 2.5)\r\n        {            \r\n            diffuseColor = mix(vec4(u_leafColor.xyz * 0.3, 1.0), u_leafColor, pow( fs_Uv.x, 1.0));\r\n        }\r\n        else if(fs_Col.x < 3.5)\r\n        {\r\n            diffuseColor = mix(u_flowerColor, vec4(u_flowerColor.x * 1.5, u_flowerColor.y * 0.5, u_flowerColor.z, 1.0), pow(1.0 - fs_Uv.y, 2.0));\r\n        }\r\n        \r\n        \r\n\r\n        // Calculate the diffuse term for Lambert shading\r\n        float diffuseTerm = dot(normalize(fs_Nor.xyz), normalize(fs_LightVec.xyz));\r\n        // Avoid negative lighting values\r\n        //diffuseTerm = abs(diffuseTerm);\r\n        diffuseTerm = clamp(diffuseTerm, 0.0, 1.0);\r\n\r\n        float ambientTerm = 0.2;\r\n\r\n        float lightIntensity = diffuseTerm + ambientTerm;   //Add a small float value to the color multiplier\r\n                                                            //to simulate ambient lighting. This ensures that faces that are not\r\n                                                            //lit by our point light are not completely black.\r\n\r\n        // Compute final shaded color\r\n        out_Col = vec4(diffuseColor.rgb * lightIntensity, diffuseColor.a);\r\n\r\n        //out_Col = vec4(fs_Uv, 0.0, diffuseColor.a);\r\n        \r\n}\r\n"
+module.exports = "#version 300 es\r\n\r\n// This is a fragment shader. If you've opened this file first, please\r\n// open and read lambert.vert.glsl before reading on.\r\n// Unlike the vertex shader, the fragment shader actually does compute\r\n// the shading of geometry. For every pixel in your program's output\r\n// screen, the fragment shader is run for every bit of geometry that\r\n// particular pixel overlaps. By implicitly interpolating the position\r\n// data passed into the fragment shader by the vertex shader, the fragment shader\r\n// can compute what color to apply to its pixel based on things like vertex\r\n// position, light position, and vertex color.\r\nprecision highp float;\r\n\r\nuniform vec4 u_branchColor;\r\nuniform vec4 u_leafColor;\r\nuniform vec4 u_flowerColor;\r\n\r\nuniform sampler2D u_DiffuseMap;\r\n\r\nuniform mat4 u_ModelInvTr;\r\n\r\n// These are the interpolated values out of the rasterizer, so you can't know\r\n// their specific values without knowing the vertices that contributed to them\r\nin vec4 fs_Nor;\r\nin vec4 fs_LightVec;\r\nin vec4 fs_Col;\r\nin vec2 fs_Uv;\r\n\r\nout vec4 out_Col; // This is the final output color that you will see on your\r\n                  // screen for the pixel that is currently being processed.\r\n\r\n\r\n\r\nvoid main()\r\n{\r\n    // Material base color (before shading)\r\n        vec4 diffuseColor;\r\n        \r\n        //vec4 NormalMap = texture(u_DiffuseMap, fs_Uv);\r\n\r\n        //branch\r\n        if(fs_Col.x < 1.5)\r\n        {\r\n            diffuseColor = u_branchColor;\r\n        }\r\n        else if(fs_Col.x < 2.5)\r\n        {            \r\n            diffuseColor = mix(vec4(u_leafColor.xyz * 0.3, 1.0), u_leafColor, pow( fs_Uv.x, 1.0));\r\n        }\r\n        else if(fs_Col.x < 3.5)\r\n        {\r\n            diffuseColor = mix(u_flowerColor, vec4(u_flowerColor.x * 1.5, u_flowerColor.y * 0.5, u_flowerColor.z, 1.0), pow(1.0 - fs_Uv.y, 2.0));\r\n        }\r\n        \r\n        \r\n\r\n        // Calculate the diffuse term for Lambert shading\r\n        float diffuseTerm = dot(normalize(fs_Nor.xyz), normalize(fs_LightVec.xyz));\r\n        // Avoid negative lighting values\r\n        //diffuseTerm = abs(diffuseTerm);\r\n        diffuseTerm = clamp(diffuseTerm, 0.0, 1.0);\r\n\r\n        float ambientTerm = 0.2;\r\n\r\n        float lightIntensity = diffuseTerm + ambientTerm;   //Add a small float value to the color multiplier\r\n                                                            //to simulate ambient lighting. This ensures that faces that are not\r\n                                                            //lit by our point light are not completely black.\r\n\r\n        // Compute final shaded color\r\n        out_Col = vec4(diffuseColor.rgb * lightIntensity, diffuseColor.a);\r\n\r\n        //vec4 faceNormal = u_ModelInvTr * vec4(fs_Col.yzw, 0.0);\r\n        //out_Col = vec4(faceNormal.xyz, diffuseColor.a);\r\n        \r\n}\r\n"
 
 /***/ }),
 /* 74 */

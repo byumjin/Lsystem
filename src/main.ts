@@ -17,6 +17,8 @@ import Camera from './Camera';
 import {setGL} from './globals';
 import ShaderProgram, {Shader} from './rendering/gl/ShaderProgram';
 
+import * as OBJ from 'webgl-obj-loader';
+
 
 // Define an object with application parameters and button callbacks
 // This will be referred to by dat.GUI's functions that add GUI elements.
@@ -60,6 +62,12 @@ let currentTime : number;
 let elapsedTime : number;
 let deltaTime : number;
 
+let MeshManager : Array<string> = [];
+
+
+
+
+
 function loadScene() {
 
   //lsys = new Lsystem(vec3.fromValues(0, 0, 0));
@@ -95,17 +103,17 @@ function rotatePlanet(planet: Icosphere, radius: number, speed: number) {
 function loadObjs()
 {
   branch = new Branch(vec3.fromValues(0, 0, 0));      
-  branch.create();
+  branch.createdByLoader(MeshManager[0]);
 
   leaf = new Leaf(vec3.fromValues(0, 0, 0));  
-  leaf.create();
+  leaf.createdByLoader(MeshManager[1]);
   //leaf.bindTexture("src/textures/floor_norm.jpg");
 
   flower = new Flower(vec3.fromValues(0, 0, 0));   
-  flower.create();  
+  flower.createdByLoader(MeshManager[2]);
 
   suz = new Suzanne(vec3.fromValues(0, 0, 0));         
-  suz.create();
+  suz.createdByLoader(MeshManager[3]);
 
   floor = new Square(vec3.fromValues(0, 0, 0));  
   floor.create();    
@@ -125,7 +133,7 @@ function main() {
   stats.domElement.style.position = 'absolute';
   stats.domElement.style.left = '0px';
   stats.domElement.style.top = '0px';
-  document.body.appendChild(stats.domElement);  
+  document.body.appendChild(stats.domElement);
 
   // Add controls to the gui
   const gui = new DAT.GUI();
@@ -279,4 +287,37 @@ function main() {
   tick();
 }
 
-main();
+function readTextFile(file : string) : string
+{
+   console.log("Download" + file + "...");
+    var rawFile = new XMLHttpRequest();
+    let resultText : string;
+    rawFile.open("GET", file, false);
+    rawFile.onreadystatechange = function ()
+    {
+        if(rawFile.readyState === 4)
+        {
+            if(rawFile.status === 200 || rawFile.status == 0)
+            {
+                resultText= rawFile.responseText;                
+            }
+        }
+    }
+    rawFile.send(null);
+
+    return resultText;
+}
+
+function DownloadMeshes()
+{
+  MeshManager.push(readTextFile("./src/models/branch.obj"));
+  MeshManager.push(readTextFile("./src/models/leaf.obj"));
+  MeshManager.push(readTextFile("./src/models/flower.obj"));
+  MeshManager.push(readTextFile("./src/models/suzanne.obj"));
+  console.log("Downloading is complete!");
+
+  main();  
+}
+
+DownloadMeshes();
+
