@@ -22,7 +22,7 @@ Using L-system, I have created a tree consists of branches, leaves and flowers.
 - Iteration : Iteration counter.
 - Angle : The angle of rotation of the turtle.
 - Colors : The colors of each mesh the turtle draws.
-- Sizes : The scale of each mesh the turtle draws.
+- Sizes : The scale of each mesh the turtle draws. (Due to the Probability for Organic variation, scale for each object won't be identical)
 - Wind : Wind direction and its strength.
 
 
@@ -50,7 +50,9 @@ Using L-system, I have created a tree consists of branches, leaves and flowers.
 ## Detail
 
 - Expanding Axiom : I used two javascript arrays, which are previous Axiom and current Axiom, to expand my axiom. Whenever it iterates to expand its axiom, current axiom stores the lates expanded axiom and copy its data to previous axiom when it steps over to next stage.
+
 - A big VBO : Instead of drawing individual mesh components one at a time, we can push all VBO data to the GPU at once after we've finished parsing our entire string for drawing. It makes it draw way faster but when we need to re-generate this (eg. changing some of GUI values above ), it can make lags because it may need to re-create a new big VBO again.
+
 - Wind animations for tree : Using vertex shader, we can make simple wind animation with using each vertex position and pivot point chosened by the developer. First, make a wave along the world's x and z position. Then, get up vector like current vertex's position - pivot point (Of course this cannot get accurate up vector of each mesh segment, but if we are using one big VBO it is impossible to make model matrix or invTrans matrix per each mesh segment ). After do cross product between both, we can get biTangent vector which can be the standard vector for rotating our vertices. Finally, using appropriate stiffness and time seed values, we can wiggle our mesh segment along with wind direction.
 
 ## OBJ loading

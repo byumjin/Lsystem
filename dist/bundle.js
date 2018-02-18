@@ -3582,14 +3582,19 @@ let currentTime;
 let elapsedTime;
 let deltaTime;
 let MeshManager = [];
-function loadScene() {
+function createLsystem(bRefresh) {
     //lsys = new Lsystem(vec3.fromValues(0, 0, 0));
-    lsys.create();
+    if (bRefresh) {
+        lsys.create();
+    }
+    else {
+        lsys.clear();
+    }
     lsys.Angle = controls.Angle;
     lsys.BranchSize = controls.BranchSize;
     lsys.LeafSize = controls.LeafSize;
     lsys.FlowerSize = controls.FlowerSize;
-    lsys.update(controls.Axiom, controls.Iteration);
+    lsys.update(controls.Axiom, controls.Iteration, bRefresh);
     lsys.bindBuffers();
 }
 function releaseLsystem() {
@@ -3632,15 +3637,15 @@ function main() {
     const gui = new __WEBPACK_IMPORTED_MODULE_2_dat_gui__["GUI"]();
     gui.add(controls, 'Axiom').onChange(function () {
         releaseLsystem();
-        loadScene();
+        createLsystem(true);
     });
     gui.add(controls, 'Iteration', 0, 6).step(1).onChange(function () {
         releaseLsystem();
-        loadScene();
+        createLsystem(true);
     });
     gui.add(controls, 'Angle', 0, 90).step(0.1).onChange(function () {
         releaseLsystem();
-        loadScene();
+        createLsystem(false);
     });
     var COL = gui.addFolder('Color');
     COL.addColor(controls, 'BranchColor');
@@ -3648,15 +3653,15 @@ function main() {
     COL.addColor(controls, 'FlowerColor');
     gui.add(controls, 'BranchSize', 0, 3).step(0.1).onChange(function () {
         releaseLsystem();
-        loadScene();
+        createLsystem(false);
     });
     gui.add(controls, 'LeafSize', 0, 3).step(0.1).onChange(function () {
         releaseLsystem();
-        loadScene();
+        createLsystem(false);
     });
     gui.add(controls, 'FlowerSize', 0, 3).step(0.1).onChange(function () {
         releaseLsystem();
-        loadScene();
+        createLsystem(false);
     });
     var WIND = gui.addFolder('Wind');
     WIND.add(controls, 'X', 0.0, 1.0).step(0.1);
@@ -3687,7 +3692,7 @@ function main() {
     lsys = new __WEBPACK_IMPORTED_MODULE_3__lsystem_Lsystem__["a" /* default */](__WEBPACK_IMPORTED_MODULE_0_gl_matrix__["d" /* vec3 */].fromValues(0, 0, 0));
     lsys.getMeshes(branch, leaf, flower, suz);
     //Load main scene
-    loadScene();
+    createLsystem(true);
     //bakcground       
     solarShader = new __WEBPACK_IMPORTED_MODULE_13__rendering_gl_ShaderProgram__["b" /* default */]([
         new __WEBPACK_IMPORTED_MODULE_13__rendering_gl_ShaderProgram__["a" /* Shader */](gl.VERTEX_SHADER, __webpack_require__(74)),
@@ -12262,11 +12267,8 @@ class Lsystem extends __WEBPACK_IMPORTED_MODULE_2__rendering_gl_Drawable__["a" /
         this.flower = flower;
         this.leaf = leaf;
     }
-    create() {
-        this.prevAxiom = "";
-        this.nextAxiom = "";
-        this.Iteration = 0;
-        this.Angle = 22.5;
+    clear() {
+        this.destory();
         this.directVec = __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["d" /* vec3 */].create();
         this.directVec = __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["d" /* vec3 */].fromValues(0.0, 1.0, 0.0);
         this.modelMat = __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["b" /* mat4 */].create();
@@ -12290,6 +12292,13 @@ class Lsystem extends __WEBPACK_IMPORTED_MODULE_2__rendering_gl_Drawable__["a" /
         this.normalsArray = [];
         this.uvsArray = [];
     }
+    create() {
+        this.prevAxiom = "";
+        this.nextAxiom = "";
+        this.Iteration = 0;
+        this.Angle = 22.5;
+        this.clear();
+    }
     bindBuffers() {
         let startIndex;
         startIndex = 0;
@@ -12301,7 +12310,8 @@ class Lsystem extends __WEBPACK_IMPORTED_MODULE_2__rendering_gl_Drawable__["a" /
             var classIndex = this.classStack[m];
             var randomVlaue = Math.random() * (0.8 - 0.5) + 0.5;
             randomVlaue *= 0.6;
-            var randomTimeSeed = Math.random();
+            //var randomVlaue = 0.6;
+            //var randomTimeSeed = Math.random();
             for (let i = 0; i < thisMesh.positions.length / 3; i++) {
                 let newPos;
                 newPos = __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["e" /* vec4 */].create();
@@ -12419,10 +12429,11 @@ class Lsystem extends __WEBPACK_IMPORTED_MODULE_2__rendering_gl_Drawable__["a" /
         __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].bufferData(__WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].ARRAY_BUFFER, this.uvs, __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].STATIC_DRAW);
         console.log(`finished bindBuffers`);
     }
-    update(grammar, iter) {
+    update(grammar, iter, bRefresh) {
         this.Axiom = grammar;
         this.Iteration = iter;
-        this.Parsing();
+        if (bRefresh)
+            this.Parsing();
         this.moving();
     }
     moving() {

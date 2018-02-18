@@ -68,17 +68,25 @@ let MeshManager : Array<string> = [];
 
 
 
-function loadScene() {
+function createLsystem(bRefresh : boolean) {
 
   //lsys = new Lsystem(vec3.fromValues(0, 0, 0));
 
-  lsys.create();
+  if(bRefresh)
+  {
+    lsys.create();
+  }
+  else
+  {
+    lsys.clear();
+  }
+ 
   lsys.Angle = controls.Angle;
   lsys.BranchSize = controls.BranchSize;
   lsys.LeafSize = controls.LeafSize;
   lsys.FlowerSize = controls.FlowerSize;
 
-  lsys.update(controls.Axiom, controls.Iteration);
+  lsys.update(controls.Axiom, controls.Iteration, bRefresh);
   
   lsys.bindBuffers();
 }
@@ -141,19 +149,19 @@ function main() {
   gui.add(controls, 'Axiom').onChange(function()
   {
     releaseLsystem();
-    loadScene();
+    createLsystem(true);
   });
   
   gui.add(controls, 'Iteration', 0, 6).step(1).onChange(function()
   {
     releaseLsystem();
-    loadScene();
+    createLsystem(true);
   });
 
   gui.add(controls, 'Angle', 0, 90).step(0.1).onChange(function()
   {
     releaseLsystem();
-    loadScene();
+    createLsystem(false);
   });
 
   var COL = gui.addFolder('Color'); 
@@ -164,19 +172,19 @@ function main() {
   gui.add(controls, 'BranchSize', 0, 3).step(0.1).onChange(function()
   {
     releaseLsystem();
-    loadScene();
+    createLsystem(false);
   });
 
   gui.add(controls, 'LeafSize', 0, 3).step(0.1).onChange(function()
   {
     releaseLsystem();
-    loadScene();
+    createLsystem(false);
   });
 
   gui.add(controls, 'FlowerSize', 0, 3).step(0.1).onChange(function()
   {
     releaseLsystem();
-    loadScene();
+    createLsystem(false);
   });
 
 
@@ -214,7 +222,7 @@ function main() {
   lsys.getMeshes(branch, leaf, flower, suz);
 
   //Load main scene
-  loadScene();
+  createLsystem(true);
 
   //bakcground       
   solarShader = new ShaderProgram([

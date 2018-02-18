@@ -58,12 +58,10 @@ class Lsystem extends Drawable{
     this.leaf = leaf;
   }
 
-  create() {
+  clear()
+  {
+    this.destory();
 
-    this.prevAxiom = "";
-    this.nextAxiom = "";
-    this.Iteration = 0;
-    this.Angle = 22.5;
     this.directVec = vec3.create();
     this.directVec = vec3.fromValues(0.0, 1.0, 0.0);
 
@@ -96,6 +94,16 @@ class Lsystem extends Drawable{
     this.colsArray = [];
     this.normalsArray = [];
     this.uvsArray = [];
+  }
+
+  create() {
+
+    this.prevAxiom = "";
+    this.nextAxiom = "";
+    this.Iteration = 0;
+    this.Angle = 22.5;
+    
+    this.clear();
 
   }
 
@@ -116,7 +124,9 @@ class Lsystem extends Drawable{
       var randomVlaue = Math.random() * (0.8 - 0.5) + 0.5;
       randomVlaue *= 0.6;
 
-      var randomTimeSeed = Math.random();
+      //var randomVlaue = 0.6;
+
+      //var randomTimeSeed = Math.random();
 
      
 
@@ -271,12 +281,14 @@ class Lsystem extends Drawable{
     console.log(`finished bindBuffers`);
   }
 
-  update(grammar: string, iter: number)
+  update(grammar: string, iter: number, bRefresh : boolean)
   {
     this.Axiom = grammar;
     this.Iteration = iter;
 
-    this.Parsing();
+    if(bRefresh)
+      this.Parsing();
+
     this.moving();
   }
 
